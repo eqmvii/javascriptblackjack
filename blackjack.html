@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" type="text/css" href="blackjackstyle.css">
+    <meta charset="utf-8" />
+    <title>Javascript Blackjack</title>
+</head>
+<body>
+    <h1>JavaScript Blackjack </h1>
+    <div class="textupdates" id="textUpdates">
+        Press 'New Game' to begin!
+
+
+    </div> 
+
+    <div class="buttonbox" id="newgame">
+        <button alt="play" id="play">New Game</button>
+    </div>
+    <div class="buttonbox hidden" id="buttonBox">
+        <button alt="hit" id="hit">Hit</button>
+        <button alt="stay" id="stay">Stay</button>
+    </div>
+    <table>
+        <tr>
+            <th id="phand">             
+                Your Hand
+            </th>
+            <th id="dhand">
+                Dealer's Hand
+            </th>
+        </tr>
+        <tr>
+            <td id="pcards">No cards dealt yet</td>
+            <td id="dcards">No cards dealt yet</td>
+
+        </tr> 
+    </table>
+    <div id="tracker" class="buttonbox">
+        <p>Wins: 0</p>
+        <p>Total Games: 0</p>
+    </div>
+
+
+
+<script src="blackjack.js"></script>
+</body>
+
+</html>

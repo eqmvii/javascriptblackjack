@@ -1,0 +1,1 @@
+Blackjack game written in HTML, CSS and JavaScript without any librariries.

@@ -1,0 +1,80 @@
+﻿body
+{
+    font-family: Arial, sans-serif;
+   
+}
+
+h1{
+    text-align: center
+}
+
+table
+{
+    margin-left: auto;
+    margin-right: auto;
+    height: 200px;
+    width: 600px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    display: table;
+    padding: 8px 8px 8px 8px
+}
+
+
+
+div.buttonbox
+{
+    width: 40%;
+    /*background-color: #717171;*/
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 8px 8px 8px 8px
+}
+
+div.textupdates
+{
+    width: 600px;
+    height: 34px;
+    background-color: #cacaca;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 8px 8px 8px 8px;
+    font-weight: bold;
+    /*font-size: larger;*/
+    margin-top: 20px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+}
+
+.cool
+{
+    background-color: #ff0000
+}
+
+.hot
+{
+    background-color: #2336ac
+}
+
+.hidden
+{
+    visibility: hidden
+}
+
+.blackcard
+{
+    font-weight: bold;      
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.redcard
+{
+    color: red;
+    font-weight: bold;   
+}
+
