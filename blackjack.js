@@ -1,12 +1,10 @@
 // blackjack.js
 // A simple 'vanilla' JavaScript implementation of blackjack
 
-// Know Issue Log: 
-// (1) Clicking 'hit' or 'stay' in rapid succession can lead to unexpected results
+// Know Issues:
+// "Simple stratgey" is a massive oversimplification
 
-
-console.log("Script link success!");
-
+//console.log("Script link success!");
 
 // Object creation helper function from JavaScript: The Good Parts
 /*
@@ -34,6 +32,7 @@ jsbApp.phandtext = document.getElementById('phand');
 jsbApp.dhandtext = document.getElementById('dhand');
 jsbApp.tracker = document.getElementById('tracker');
 jsbApp.newgame = document.getElementById('newgame');
+jsbApp.choice = document.getElementById('choice');
 
 // initialize variables to track hands/cards/etc.
 jsbApp.playerHand = [];
@@ -54,8 +53,10 @@ function card(suit, value, name) {
 
 
 var newGame = function () {
+    // remove newgame button and show hit/stay buttons
     jsbApp.newgame.classList.add("hidden");
-    jsbApp.buttonBox.classList.remove("hidden");
+    
+    // reset text and variables for newgame
     jsbApp.dcards.innerHTML = "";
     jsbApp.dcards.innerHTML = "";
     jsbApp.playerHand = [];
@@ -73,12 +74,12 @@ var newGame = function () {
     if (handTotal(jsbApp.playerHand) === 21)
     {
         jsbApp.wins += 1;
-        jsbApp.games += 1;
-        track();
-        jsbApp.gameStatus = 1;
+        jsbApp.games += 1;        
+        jsbApp.gameStatus = 1; // to cause the dealer's hand to be drawn face up
         drawHands();
         jsbApp.textUpdates.innerHTML = "You won! You got 21 on your initial hand!";
         track();
+        jsbApp.gameStatus = 2; // game is won
         return;
     }
 
@@ -93,15 +94,16 @@ var newGame = function () {
         drawHands();
         jsbApp.textUpdates.innerHTML = "You lost! The dealer had 21 on their initial hand.";
         track();
+        jsbApp.gameStatus = 2; // game is won
         return;
     }
 
-    // draw the hands if neither one
+    // draw the hands if neither won on the initial deal
     drawHands();
-
-    // provide hit/stay buttons if the game didn't end on the initial deal
+    advise();
+    jsbApp.buttonBox.classList.remove("hidden"); // show hit/stay buttons
     jsbApp.textUpdates.innerHTML = "The initial hands are dealt!";
-    //jsbApp.buttonBox.classList.remove("hidden");
+    
 };
 
 var createDeck = function () {
@@ -157,7 +159,7 @@ var drawHands = function () {
     if (jsbApp.gameStatus === 0)
     {
         htmlswap += "<ul><li>[Hidden Card]</li>";
-        jsbApp.dhandtext.innerHTML = "Dealer's Hand"; // hide value while a card is face down
+        jsbApp.dhandtext.innerHTML = "Dealer's Hand (" + jsbApp.dealerHand[1].value + " + hidden card)"; // hide value while a card is face down
     }
     else
     {
@@ -176,17 +178,17 @@ var drawHands = function () {
     }
     htmlswap += "</ul>"
     jsbApp.dcards.innerHTML = htmlswap;
-    console.log("Player has " + jsbApp.playerHand.length + " cards, dealer has " + jsbApp.dealerHand.length + " cards, and deck has " + jsbApp.deck.length + " cards.");
+    //console.log("Player has " + jsbApp.playerHand.length + " cards, dealer has " + jsbApp.dealerHand.length + " cards, and deck has " + jsbApp.deck.length + " cards.");
 
 };
 
 // return the total value of the hand 
 var handTotal = function (hand) {
-    console.log("Checking hand value");
+    //console.log("Checking hand value");
     var total = 0;
     var aceFlag = 0; // track the number of aces in the hand
     for (var i = 0; i < hand.length; i++) {
-        console.log("Card: " + hand[i].name);
+        //console.log("Card: " + hand[i].name);
         total += hand[i].value;
         if (hand[i].value == 1)
         {
@@ -194,6 +196,7 @@ var handTotal = function (hand) {
         }
     }
     // For each ace in the hand, add 10 if doing so won't cause a bust
+    // To show best-possible hand value
     for (var j = 0; j < aceFlag; j++)
     {
         if (total + 10 <= 21)
@@ -201,7 +204,7 @@ var handTotal = function (hand) {
             total +=10;
         }
     }
-    console.log("Total: " + total);
+    // console.log("Total: " + total);
     return total;
 }
 
@@ -212,8 +215,7 @@ var shuffle = function (deck) {
     var deckL = deck.length;
     for (var a = 0; a < deckL; a++)
     {
-        var randomCard = getRandomInt(0, (deck.length));
-        // console.log("Picking position #" + randomCard);
+        var randomCard = getRandomInt(0, (deck.length));        
         shuffledDeck.push(deck[randomCard]);
         deck.splice(randomCard, 1);        
     }
@@ -225,10 +227,11 @@ var getRandomInt = function (min, max) {
     max = Math.floor(max);
     // console.log("Min: " + min + " Max: " + max);
     return Math.floor(Math.random() * (max - min)) + min;
-    // code from MDN
+    // code based on sample from MDN
 }
 
-// print the deck for debugging purposes
+// print the deck to the console 
+// only for for debugging purposes
 var deckPrinter = function (deck) {
     for (var i = 0; i < deck.length; i++)
     {
@@ -240,94 +243,96 @@ var deckPrinter = function (deck) {
 // Game loop begins when the play button is pressed
 jsbApp.playButton.addEventListener("click", newGame);
 
-
+// Hit button pressed:
 jsbApp.hitButton.addEventListener("click", function () {
+    // disable if the game has already been won
     if (jsbApp.gameStatus === 2)
     {
+        console.log("Hit clicked when game was over or already clicked.");
         return;
     }
+
+    // deal a card to the player and draw the hands
     jsbApp.playerHand.push(jsbApp.deck.pop());
     drawHands();
+   
+
     var handVal = handTotal(jsbApp.playerHand);
     if (handVal > 21)
     {
         bust();
+        advise();
         return;
     }
     else if (handVal === 21)
     {
         victory();
+        advise();
         return;
     }
+    advise();
     jsbApp.textUpdates.innerHTML = "Hit or stay?</p>";
     return;      
 });
 
+// Stay button pressed:
 jsbApp.stayButton.addEventListener("click", function stayLoop() {
-    console.log("(1)Inside stayLoop now");
+    //console.log("(1)Inside stayLoop now");
+    // disable ig game already won
     if (jsbApp.gameStatus === 2)
     {
-        console.log("Clicked when game was over or already clicked.");
+        console.log("Stay clicked when game was over or already clicked.");
         return;
     }
-    else if (jsbApp.gameStatus === 0)
+    else if (jsbApp.gameStatus === 0) // i.e. stay was just pressed
     {
+        
         jsbApp.buttonBox.classList.add("hidden"); // take away the hit and stay buttons
         var handVal = handTotal(jsbApp.dealerHand);
-        jsbApp.gameStatus = 1;
+        jsbApp.gameStatus = 1; // enter the 'stay' loop
+        advise(); // clear advise
         jsbApp.textUpdates.innerHTML = "The dealer reveals their hidden card";
         drawHands();
-        setTimeout(stayLoop, 1800);
+        setTimeout(stayLoop, 750); // return to the stay loop
     }
-    else if (jsbApp.gameStatus === 1) {
+    else if (jsbApp.gameStatus === 1) {    
 
-    jsbApp.buttonBox.classList.add("hidden"); // take away the hit and stay buttons
-
-    // If dealer has less than 16, hit
+    // If dealer has less than 17, hit
     var handVal = handTotal(jsbApp.dealerHand);
-    if (handVal > 16 && handVal < 21)
+    if (handVal > 16 && handVal <= 21) // dealer stays and game resolves
     {
+        drawHands();
         //console.log("----------Dealer stays, checking hands");
         var playerVal = handTotal(jsbApp.playerHand);
         if (playerVal > handVal)
-        {
-            drawHands();
+        {            
             victory();
             return;
         }
         else if (playerVal < handVal)
-        {
-            drawHands();
+        {            
             bust();
             return;
         }
         else
-        {
-            drawHands();
+        {            
             tie();
             return;
         }
     }
-    if (handVal <= 16)
-    {
-        jsbApp.textUpdates.innerHTML = "Dealer hits!";
-        //console.log("New card for dealer!");
-        jsbApp.dealerHand.push(jsbApp.deck.pop());
-        setTimeout(stayLoop, 1800);
-    }
-    drawHands();
-    handVal = handTotal(jsbApp.dealerHand);
     if (handVal > 21)
     {
         victory();
         return;
     }
-    if (handVal === 21)
+    else // hit
     {
-        bust();
+        jsbApp.textUpdates.innerHTML = "Dealer hits!";
+        jsbApp.dealerHand.push(jsbApp.deck.pop());
+        drawHands();
+        setTimeout(stayLoop, 750);
         return;
-    }
-    setTimeout(stayLoop, 1800);
+    }   
     }
 });
 
@@ -335,7 +340,7 @@ var victory = function () {
     jsbApp.wins += 1;
     jsbApp.games += 1;
     var explanation = "";
-    jsbApp.gameStatus = 2;
+    jsbApp.gameStatus = 2; // flag that the game is over
     var playerTotal = handTotal(jsbApp.playerHand);
     var dealerTotal = handTotal(jsbApp.dealerHand);
     if (playerTotal === 21)
@@ -344,45 +349,113 @@ var victory = function () {
     }
     else if (dealerTotal > 21)
     {
-        explanation = "The dealer went bust wtih " + dealerTotal + "!";
+        explanation = "Dealer busted with " + dealerTotal + "!";
     }
     else
     {
         explanation = "You had " + playerTotal + " and the dealer had " + dealerTotal + ".";
     }
-    jsbApp.textUpdates.innerHTML = "You won the hand! " + explanation + "<br>Press 'New Game' to play again.";
+    jsbApp.textUpdates.innerHTML = "You won!<br>" + explanation + "<br>Press 'New Game' to play again.";
     track();
 }
 
 var bust = function () {
     jsbApp.games += 1;    
     var explanation = "";
-    jsbApp.gameStatus = 2;
+    jsbApp.gameStatus = 2; // flag that the game is over
     var playerTotal = handTotal(jsbApp.playerHand);
     var dealerTotal = handTotal(jsbApp.dealerHand);
     if (playerTotal > 21)
     {
-        explanation = "Your hand is " + playerTotal + ", which is over 21, so you went bust.";
+        explanation = "You busted with " + playerTotal + ".";
     }
-    else
-    {
-        explanation = "Dealer had " + dealerTotal + " and you had " + playerTotal + ".";
-    }
-    jsbApp.textUpdates.innerHTML = "You lost. " + explanation + "<br>Press 'New Game' to play again.";
+    jsbApp.textUpdates.innerHTML = "You lost.<br>" + explanation + "<br>Press 'New Game' to play again.";
     track();
 }
 
 var tie = function () {    
     jsbApp.games += 1;    
     var explanation = "";
-    jsbApp.gameStatus = 2;
+    jsbApp.gameStatus = 2; // flag that the game is over
     var playerTotal = handTotal(jsbApp.playerHand);
     jsbApp.textUpdates.innerHTML = "It's a tie at " + playerTotal + " points each.<br>Press 'New Game' to play again.";
     track();
 }
 
+// update the win/loss counter
 var track = function () {
-    jsbApp.tracker.innerHTML = "<p>Wins: " + jsbApp.wins + "</p><p>Total Games: " + jsbApp.games + "</p>";
+    jsbApp.tracker.innerHTML = "<p>Wins: " + jsbApp.wins + " Total Games: " + jsbApp.games + "</p>";
     jsbApp.newgame.classList.remove("hidden");
     jsbApp.buttonBox.classList.add("hidden");
+}
+
+// check the player hand for an ace
+var softCheck = function (hand) {    
+    var total = 0;
+    var aceFlag = 0; // track the number of aces in the hand
+    for (var i = 0; i < hand.length; i++) {
+        //console.log("Card: " + hand[i].name);
+        total += hand[i].value;
+        if (hand[i].value == 1) {
+            aceFlag += 1;
+        }
+    }
+    // For each ace in the hand, add 10 if doing so won't cause a bust
+    // To show best-possible hand value
+    for (var j = 0; j < aceFlag; j++) {
+        if (total + 10 <= 21) {
+            return true; // the hand is soft, i.e. it can be multiple values because of aces
+        }
+    }    
+    return false; // the hand is hard, i.e. it has only one possible value
+}
+
+var advise = function () {
+    // no advise if player has no choices
+    if (jsbApp.gameStatus > 0)
+    {
+        jsbApp.choice.innerHTML = "";
+        return;
+    } 
+    var playerTotal = handTotal(jsbApp.playerHand);
+    var soft = softCheck(jsbApp.playerHand);
+    console.log("Soft: " + soft);
+    var dealerUp = jsbApp.dealerHand[1].value;
+    // count dealer's ace as 11 to simplify logic
+    if (dealerUp === 1)
+    {
+        dealerUp = 11;
+    }
+
+    // provide advice based on HIGHLY simplified blackjack basic strategy
+    if (playerTotal <= 11 && !soft)
+    {
+        jsbApp.choice.innerHTML = "[Hit!]";
+    }
+    else if (playerTotal >= 12 && playerTotal <= 16 && dealerUp <= 6 && !soft)
+    {
+        jsbApp.choice.innerHTML = "[Stay]";
+    }
+    else if (playerTotal >= 12 && playerTotal <= 16 && dealerUp >= 7 && !soft)
+    {
+        jsbApp.choice.innerHTML = "[Hit!]";
+    }
+    else if (playerTotal >= 17 && playerTotal <= 21 && !soft)
+    {
+        jsbApp.choice.innerHTML = "[Stay]";
+    }
+    else if (playerTotal >= 12 && playerTotal <= 18 && soft)
+    {
+        jsbApp.choice.innerHTML = "[Hit!]";
+    }
+    else if (playerTotal >= 19 && playerTotal <= 21 && soft)
+    {
+        jsbApp.choice.innerHTML = "[Stay]";
+    }
+    else
+    {
+        jsbApp.choice.innerHTML = "Massive error, unexpected scenario, idk";
+        console.log("Error: Player's hand was " + playerTotal + " and dealer's faceup was " + dealerUp + ".");
+    }
+    return;
 }
