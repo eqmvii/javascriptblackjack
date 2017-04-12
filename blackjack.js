@@ -42,6 +42,8 @@ jsbApp.suits = ['clubs <span class="bold">&#9827</span>', 'diamonds <span class=
 jsbApp.values = ["Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King"];
 jsbApp.gameStatus = 0; // flag that game has not yet been won
 jsbApp.wins = 0; // flag that game has not yet been won
+jsbApp.draws = 0; // flag that game has not yet been won
+jsbApp.losses = 0; // flag that game has not yet been won
 jsbApp.games = 0; // flag that game has not yet been won
 
 // Object Constructor for a card. !!! ALWAYS USE NEW WHEN MAKING A NEW CARD!!!
@@ -89,7 +91,8 @@ var newGame = function () {
     // check for dealer victory    
     if (handTotal(jsbApp.dealerHand) === 21)
     {
-        jsbApp.games += 1;        
+        jsbApp.games += 1;
+        jsbApp.losses += 1;
         jsbApp.gameStatus = 1; // to cause the dealer's hand to be drawn face up
         drawHands();
         jsbApp.textUpdates.innerHTML = "You lost! The dealer had 21 on their initial hand.";
@@ -360,7 +363,8 @@ var victory = function () {
 }
 
 var bust = function () {
-    jsbApp.games += 1;    
+    jsbApp.games += 1;
+    jsbApp.losses += 1;
     var explanation = "";
     jsbApp.gameStatus = 2; // flag that the game is over
     var playerTotal = handTotal(jsbApp.playerHand);
@@ -374,7 +378,8 @@ var bust = function () {
 }
 
 var tie = function () {    
-    jsbApp.games += 1;    
+    jsbApp.games += 1;
+    jsbApp.draws += 1;
     var explanation = "";
     jsbApp.gameStatus = 2; // flag that the game is over
     var playerTotal = handTotal(jsbApp.playerHand);
@@ -384,7 +389,7 @@ var tie = function () {
 
 // update the win/loss counter
 var track = function () {
-    jsbApp.tracker.innerHTML = "<p>Wins: " + jsbApp.wins + " Total Games: " + jsbApp.games + "</p>";
+    jsbApp.tracker.innerHTML = "<p>Wins: " + jsbApp.wins + " Draws: " + jsbApp.draws + " Losses: " + jsbApp.losses + "</p>";
     jsbApp.newgame.classList.remove("hidden");
     jsbApp.buttonBox.classList.add("hidden");
 }
